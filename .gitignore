@@ -1,0 +1,61 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Next.js build output
+.next/
+out/
+next-env.d.ts
+
+# Build cache
+*.cache
+*.old
+tsconfig.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.vercel
+
+# MCPs
+.playwright-mcp
+.mcp.json
+
+# Playwright
+test-results/
+playwright-report/
+.playwright/
+
+# Docs
+claude.md
+codex.md
+TODO.md
+*-TODO.md
+.env*.local

@@ -1,0 +1,25 @@
+[project]
+name = "video-output-bridge"
+description = "ComfyUI node that exposes rendered video files as standard image outputs."
+version = "0.1.0"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+dependencies = []
+classifiers = [
+    "Operating System :: OS Independent",
+]
+
+
+[project.urls]
+Repository = "https://github.com/arthurtravers/ComfyUI-VideoOutputBridge"
+#  Used by Comfy Registry https://registry.comfy.org
+Documentation = "https://github.com/arthurtravers/ComfyUI-VideoOutputBridge#readme"
+"Bug Tracker" = "https://github.com/arthurtravers/ComfyUI-VideoOutputBridge/issues"
+
+[tool]
+[tool.comfy]
+PublisherId = "arthur"
+DisplayName = "Video Output Bridge"
+includes = ["video_output_bridge"]
+# "requires-comfyui" = ">=1.0.0"  # ComfyUI version compatibility
