@@ -1,6 +1,6 @@
 [project]
 name = "video-output-bridge"
-description = "ComfyUI node that exposes rendered video files as standard image outputs."
+description = "Bridge VHS_VideoCombine video outputs to standard image payloads for serverless runners (RunPod, Modal). Enables automatic S3 uploads of MP4/WebP files in worker-comfyui deployments."
 version = "0.1.0"
 readme = "README.md"
 license = {file = "LICENSE"}

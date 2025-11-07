@@ -13,20 +13,41 @@ means otherwise successful jobs return `success_no_images`. This node simply
 maps those filenames back into the `images` list without touching the actual
 video files.
 
+## Installation for RunPod Serverless Endpoints
+
+Add this to your Dockerfile to install the node when building your custom RunPod worker image:
+
+```dockerfile
+FROM runpod/worker-comfyui:5.5.0-base
+
+# Install custom nodes required for video generation workflows
+# Node names from https://registry.comfy.org
+RUN comfy node install video-output-bridge
+```
+
+This ensures the bridge is available in your serverless endpoint before any workflows execute.
+
 ## Usage
 
-1. Install the node (either from the Comfy registry or by copying this folder
-   into your `custom_nodes` directory).
-2. Connect the `VHS_FILENAMES` output from `VHS_VideoCombine` into the
-   `filenames` input on `VideoOutputBridge`.
-3. Trigger the node as the final output. The workflow history will now contain
-   the video filenames under `images`, allowing external tooling to upload or
-   download the MP4 files.
+1. **In your ComfyUI workflow:**
+   - Connect the `VHS_FILENAMES` output from `VHS_VideoCombine` to the `filenames` input on `VideoOutputBridge`
+   - Set the `label` parameter (optional) to customize the output filename prefix
+   - Ensure `VideoOutputBridge` is marked as an output node
 
-## RunPod Worker configuration
+2. **Workflow execution:**
+   - The node will map video filenames into the `images` array in the workflow history
+   - RunPod's S3 uploader will automatically detect and upload these files
+
+## RunPod Worker Configuration
 
 If you are using RunPod's `worker-comfyui`, make sure the worker is configured
 to upload artifacts to your S3 bucket; otherwise the registry sees the filenames
 but nothing is exported. Follow the environment variable guide in the official
 [Configuration Guide](https://github.com/runpod-workers/worker-comfyui/blob/main/docs/configuration.md)
 to set the required S3 bucket, access key, and upload toggles.
+
+**Required environment variables:**
+- `BUCKET_ENDPOINT_URL` - Your S3-compatible storage endpoint
+- `BUCKET_ACCESS_KEY_ID` - S3 access key
+- `BUCKET_SECRET_ACCESS_KEY` - S3 secret key
+- `COMFYUI_UPLOAD_OUTPUT` - Set to `true` to enable automatic uploads
