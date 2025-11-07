@@ -18,7 +18,7 @@ video files.
 Add this to your Dockerfile to install the node when building your custom RunPod worker image:
 
 ```dockerfile
-FROM runpod/worker-comfyui:5.5.0-base
+FROM runpod/worker-comfyui:<version>-base
 
 # Install custom nodes required for video generation workflows
 # Node names from https://registry.comfy.org
@@ -51,3 +51,6 @@ to set the required S3 bucket, access key, and upload toggles.
 - `BUCKET_ACCESS_KEY_ID` - S3 access key
 - `BUCKET_SECRET_ACCESS_KEY` - S3 secret key
 - `COMFYUI_UPLOAD_OUTPUT` - Set to `true` to enable automatic uploads
+
+**Free S3-compatible storage:**
+[Cloudflare R2](https://developers.cloudflare.com/r2/) offers 10GB storage and 1 million Class A operations per month for free, making it perfect for video output hosting without egress fees.
