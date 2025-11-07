@@ -50,7 +50,6 @@ to set the required S3 bucket, access key, and upload toggles.
 - `BUCKET_ENDPOINT_URL` - Your S3-compatible storage endpoint
 - `BUCKET_ACCESS_KEY_ID` - S3 access key
 - `BUCKET_SECRET_ACCESS_KEY` - S3 secret key
-- `COMFYUI_UPLOAD_OUTPUT` - Set to `true` to enable automatic uploads
 
 **Free S3-compatible storage:**
 [Cloudflare R2](https://developers.cloudflare.com/r2/) offers 10GB storage and 1 million Class A operations per month for free, making it perfect for video output hosting without egress fees.
