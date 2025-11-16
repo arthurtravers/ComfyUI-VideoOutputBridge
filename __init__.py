@@ -42,7 +42,20 @@ class VideoOutputBridge:
 
     def forward(self, filenames: List[Dict[str, Any]], label: str):
         images = []
-        for idx, entry in enumerate(filenames or []):
+
+        # Handle case where VHS_VideoCombine returns a boolean (error state)
+        # or other unexpected types
+        if not isinstance(filenames, list):
+            print(f"VideoOutputBridge: Expected list of filenames, got {type(filenames).__name__}: {filenames}")
+            # If we got a boolean False or other non-list, treat it as empty
+            filenames = []
+
+        for idx, entry in enumerate(filenames):
+            # Ensure each entry is a dictionary
+            if not isinstance(entry, dict):
+                print(f"VideoOutputBridge: Skipping non-dict entry at index {idx}: {entry}")
+                continue
+
             filename = entry.get("filename") or f"{label}_{idx}.mp4"
             images.append(
                 {
