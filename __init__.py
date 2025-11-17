@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple, Union
 
 
 class VideoOutputBridge:
@@ -40,14 +40,25 @@ class VideoOutputBridge:
             }
         }
 
-    def forward(self, filenames: List[Dict[str, Any]], label: str):
+    def forward(self, filenames, label: str):
         images = []
 
-        # Handle case where VHS_VideoCombine returns a boolean (error state)
-        # or other unexpected types
+        # VHS_FILENAMES is a tuple of (save_output_bool, list_of_files)
+        # Extract the actual list of files from the tuple
+        if isinstance(filenames, tuple) and len(filenames) == 2:
+            save_output, file_list = filenames
+            print(f"VideoOutputBridge: Received VHS_FILENAMES tuple (save_output={save_output}, {len(file_list) if isinstance(file_list, list) else 0} files)")
+            filenames = file_list
+        elif isinstance(filenames, bool):
+            # Handle error state where just a boolean is returned
+            print(f"VideoOutputBridge: Received boolean {filenames} instead of expected tuple")
+            filenames = []
+        elif not isinstance(filenames, list):
+            print(f"VideoOutputBridge: Unexpected type {type(filenames).__name__}: {filenames}")
+            filenames = []
+
+        # Ensure filenames is a list
         if not isinstance(filenames, list):
-            print(f"VideoOutputBridge: Expected list of filenames, got {type(filenames).__name__}: {filenames}")
-            # If we got a boolean False or other non-list, treat it as empty
             filenames = []
 
         for idx, entry in enumerate(filenames):
