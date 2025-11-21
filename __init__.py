@@ -1,4 +1,5 @@
 from typing import List, Dict, Any, Tuple, Union
+from pathlib import Path
 
 
 class VideoOutputBridge:
@@ -49,32 +50,40 @@ class VideoOutputBridge:
             save_output, file_list = filenames
             print(f"VideoOutputBridge: Received VHS_FILENAMES tuple (save_output={save_output}, {len(file_list) if isinstance(file_list, list) else 0} files)")
             filenames = file_list
-        elif isinstance(filenames, bool):
-            # Handle error state where just a boolean is returned
-            print(f"VideoOutputBridge: Received boolean {filenames} instead of expected tuple")
-            filenames = []
-        elif not isinstance(filenames, list):
-            print(f"VideoOutputBridge: Unexpected type {type(filenames).__name__}: {filenames}")
+
+        # Handle edge cases: booleans, None, or other non-list types
+        if isinstance(filenames, bool) or filenames is None:
+            print(f"VideoOutputBridge: Received {type(filenames).__name__} instead of expected list")
             filenames = []
 
-        # Ensure filenames is a list
+        # Normalize to list if we got a single item
         if not isinstance(filenames, list):
-            filenames = []
+            filenames = [filenames]
 
+        # Process each entry - VHS can return strings (paths) or dicts
         for idx, entry in enumerate(filenames):
-            # Ensure each entry is a dictionary
-            if not isinstance(entry, dict):
-                print(f"VideoOutputBridge: Skipping non-dict entry at index {idx}: {entry}")
+            # Handle string paths (the common VHS format)
+            if isinstance(entry, str):
+                p = Path(entry)
+                images.append({
+                    "filename": p.name,
+                    "subfolder": str(p.parent) if p.parent != Path('.') else "",
+                    "type": "output"
+                })
                 continue
 
-            filename = entry.get("filename") or f"{label}_{idx}.mp4"
-            images.append(
-                {
+            # Handle dictionary format (alternative VHS format)
+            if isinstance(entry, dict):
+                filename = entry.get("filename") or f"{label}_{idx}.mp4"
+                images.append({
                     "filename": filename,
                     "subfolder": entry.get("subfolder", ""),
                     "type": entry.get("type", "output"),
-                }
-            )
+                })
+                continue
+
+            # Skip booleans and other unexpected types
+            print(f"VideoOutputBridge: Skipping unsupported type at index {idx}: {type(entry).__name__}")
 
         if not images:
             # Create an empty placeholder entry so downstream tooling knows a
