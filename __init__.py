@@ -47,6 +47,13 @@ class VideoOutputBridge:
         # Diagnostic: Log the raw input for debugging
         print(f"VideoOutputBridge: Raw input type={type(filenames).__name__}, value={filenames}")
 
+        # Handle double-wrapped result: VHS returns ((save_output, files),) in result
+        # but ComfyUI usually passes just (save_output, files)
+        if isinstance(filenames, tuple) and len(filenames) == 1:
+            if isinstance(filenames[0], tuple) and len(filenames[0]) == 2:
+                print(f"VideoOutputBridge: Unwrapping double-wrapped tuple")
+                filenames = filenames[0]
+
         # VHS_FILENAMES is a tuple of (save_output_bool, list_of_files)
         # Extract the actual list of files from the tuple
         if isinstance(filenames, tuple) and len(filenames) == 2:
@@ -75,9 +82,12 @@ class VideoOutputBridge:
             # Handle string paths (the common VHS format)
             if isinstance(entry, str):
                 p = Path(entry)
+                # Use parent directory name (e.g., "rapid-mega-out") not full path
+                # ComfyUI expects subfolder relative to output dir, not absolute
+                subfolder = p.parent.name if p.parent.name and p.parent != Path('.') else ""
                 images.append({
                     "filename": p.name,
-                    "subfolder": str(p.parent) if p.parent != Path('.') else "",
+                    "subfolder": subfolder,
                     "type": "output"
                 })
                 continue
