@@ -44,11 +44,14 @@ class VideoOutputBridge:
     def forward(self, filenames, label: str):
         images = []
 
+        # Diagnostic: Log the raw input for debugging
+        print(f"VideoOutputBridge: Raw input type={type(filenames).__name__}, value={filenames}")
+
         # VHS_FILENAMES is a tuple of (save_output_bool, list_of_files)
         # Extract the actual list of files from the tuple
         if isinstance(filenames, tuple) and len(filenames) == 2:
             save_output, file_list = filenames
-            print(f"VideoOutputBridge: Received VHS_FILENAMES tuple (save_output={save_output}, {len(file_list) if isinstance(file_list, list) else 0} files)")
+            print(f"VideoOutputBridge: Unpacked tuple - save_output={save_output}, files={file_list}")
             filenames = file_list
 
         # Handle edge cases: booleans, None, or other non-list types
@@ -60,8 +63,15 @@ class VideoOutputBridge:
         if not isinstance(filenames, list):
             filenames = [filenames]
 
+        # VHS returns [metadata.png, video.mp4, ...] - first file is metadata PNG
+        # Filter out .png files to only process actual video outputs
+        video_files = [f for f in filenames if not (isinstance(f, str) and f.lower().endswith('.png'))]
+
+        if len(video_files) < len(filenames):
+            print(f"VideoOutputBridge: Filtered out {len(filenames) - len(video_files)} metadata PNG file(s)")
+
         # Process each entry - VHS can return strings (paths) or dicts
-        for idx, entry in enumerate(filenames):
+        for idx, entry in enumerate(video_files):
             # Handle string paths (the common VHS format)
             if isinstance(entry, str):
                 p = Path(entry)
@@ -88,6 +98,7 @@ class VideoOutputBridge:
         if not images:
             # Create an empty placeholder entry so downstream tooling knows a
             # video was expected (RunPod's S3 uploader uses this signal).
+            print(f"VideoOutputBridge: No video files found, creating placeholder")
             images.append(
                 {
                     "filename": f"{label}_missing.mp4",
@@ -95,6 +106,9 @@ class VideoOutputBridge:
                     "type": "output",
                 }
             )
+
+        # Final diagnostic: Show what we're returning
+        print(f"VideoOutputBridge: Returning {len(images)} image(s): {images}")
 
         return {"ui": {"images": images}}
 
